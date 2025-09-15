@@ -1,5 +1,5 @@
-#ifndef CONFIG
-#define CONFIG
+#ifndef CONFIG_H
+#define CONFIG_H
 #include <stdint.h>
 //apuntadores para registros de configuracion
 
@@ -63,44 +63,45 @@
 
 
 
-#define GPIO_OUTPUT_PP_10MHZ    (0x1)  /* MODE=01, CNF=00 */
-#define GPIO_OUTPUT_PP_2MHZ     (0x2)  /* MODE=10, CNF=00 */
-#define GPIO_OUTPUT_PP_50MHZ    (0x3)  /* MODE=11, CNF=00 */
+#define GPIO_OUTPUT_PP_10MHZ    0x1  /* MODE=01, CNF=00 */
+#define GPIO_OUTPUT_PP_2MHZ     0x2  /* MODE=10, CNF=00 */
+#define GPIO_OUTPUT_PP_50MHZ    0x3  /* MODE=11, CNF=00 */
 
-#define GPIO_OUTPUT_OD_10MHZ    (0x5)  /* MODE=01, CNF=01 */
-#define GPIO_OUTPUT_OD_2MHZ     (0x6)  /* MODE=10, CNF=01 */
-#define GPIO_OUTPUT_OD_50MHZ    (0x7)  /* MODE=11, CNF=01 */
+#define GPIO_OUTPUT_OD_10MHZ    0x5 /* MODE=01, CNF=01 */
+#define GPIO_OUTPUT_OD_2MHZ     0x6  /* MODE=10, CNF=01 */
+#define GPIO_OUTPUT_OD_50MHZ    0x7  /* MODE=11, CNF=01 */
 
 /* --- MODOS DE FUNCION ALTERNATIVA (AF OUTPUT) --- */
 /* CNF=10 (AF Push-Pull), CNF=11 (AF Open-Drain) */
-#define GPIO_AF_PP_10MHZ        (0x9)  /* MODE=01, CNF=10 */
-#define GPIO_AF_PP_2MHZ         (0xA)  /* MODE=10, CNF=10 */
-#define GPIO_AF_PP_50MHZ        (0xB)  /* MODE=11, CNF=10 */
+#define GPIO_AF_PP_10MHZ        0x9  /* MODE=01, CNF=10 */
+#define GPIO_AF_PP_2MHZ         0xA  /* MODE=10, CNF=10 */
+#define GPIO_AF_PP_50MHZ        0xB  /* MODE=11, CNF=10 */
 
-#define GPIO_AF_OD_10MHZ        (0xD)  /* MODE=01, CNF=11 */
-#define GPIO_AF_OD_2MHZ         (0xE)  /* MODE=10, CNF=11 */
-#define GPIO_AF_OD_50MHZ        (0xF)  /* MODE=11, CNF=11 */
+#define GPIO_AF_OD_10MHZ        0xD  /* MODE=01, CNF=11 */
+#define GPIO_AF_OD_2MHZ         0xE  /* MODE=10, CNF=11 */
+#define GPIO_AF_OD_50MHZ        0xF  /* MODE=11, CNF=11 */
 
 
 /* --- MODOS DE ENTRADA (INPUT) --- */
 /* (MODE = 00) */
-#define GPIO_INPUT_ANALOG       (0x0)  /* CNF=00 */
-#define GPIO_INPUT_FLOATING     (0x4)  /* CNF=01 (Valor de Reset) */
-#define GPIO_INPUT_PUPD         (0x8)  /* CNF=10 (Input con Pull-up/Pull-down) */
+#define GPIO_INPUT_ANALOG       0x0  /* CNF=00 */
+#define GPIO_INPUT_FLOATING     0x4  /* CNF=01 (Valor de Reset) */
+#define GPIO_INPUT_PUPD         0x8  /* CNF=10 (Input con Pull-up/Pull-down) */
 
 
 /* --- Definiciones de estado para Pull-up/Pull-down (para registro ODR) --- */
-#define GPIO_PULL_DOWN (0U)
-#define GPIO_PULL_UP   (1U)
+#define GPIO_PULL_DOWN 0
+#define GPIO_PULL_UP   1
 
 
 /* --- Bits de habilitación de Reloj GPIO (para usar con RCC_APB2ENR) --- */
-#define RCC_APB2ENR_AFIOEN (1 << 0)
-#define RCC_APB2ENR_IOPAEN (1 << 2)
-#define RCC_APB2ENR_IOPBEN (1 << 3)
-#define RCC_APB2ENR_IOPCEN (1 << 4)
-#define RCC_APB2ENR_IOPDEN (1 << 5)
-#define RCC_APB2ENR_IOPEEN (1 << 6)
+
+#define RCC_APB2ENR_AFIOEN 0x01U
+#define RCC_APB2ENR_IOPAEN 0x04U
+#define RCC_APB2ENR_IOPBEN 0x08U
+#define RCC_APB2ENR_IOPCEN 0x10U
+#define RCC_APB2ENR_IOPDEN 0x20U
+#define RCC_APB2ENR_IOPEEN 0x40U
 
 
 
