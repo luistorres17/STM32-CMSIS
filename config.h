@@ -4,6 +4,11 @@
 #include <stdint.h>
 //apuntadores para registros de configuracion
 
+
+/* ========= Registros FLASH Interface ========= */
+#define FLASHBASE 0x40022000
+#define FLASH_ACR     (*(volatile uint32_t*)(FLASHBASE + 0x00))
+
 /* ========= Registros RCC (Reset and Clock Control) ========= */
 #define RCCBASE 0x40021000 //REGISTRO BASE DE RCC
 /* ========= Registro de control de reloj ========= */
