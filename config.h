@@ -1,6 +1,5 @@
 #ifndef CONFIG
 #define CONFIG
-
 #include <stdint.h>
 //apuntadores para registros de configuracion
 
@@ -13,11 +12,11 @@
 #define RCCBASE 0x40021000 //REGISTRO BASE DE RCC
 /* ========= Registro de control de reloj ========= */
 #define RCC_CR      (*(volatile uint32_t*)(RCCBASE + 0x00)) // REGISTRO BASE DE RCC + EL OFFSET DE RCC_CR "0x00"
-/* ========= Registro de configuración de reloj ========= */
+/* ========= Registro de configuraciï¿½n de reloj ========= */
 #define RCC_CFGR    (*(volatile uint32_t*)(RCCBASE + 0x04)) // REGISTRO BASE DE RCC + EL OFFSET DE RCC_CFGR "0x04"
-/* ========= Registro de habilitación de reloj periféricos en APB1 ========= */
+/* ========= Registro de habilitaciï¿½n de reloj perifï¿½ricos en APB1 ========= */
 #define RCC_APB1ENR (*(volatile uint32_t*)(RCCBASE + 0x1C)) // REGISTRO BASE DE RCC + EL OFFSET DE RCC_APB2ENR "0x1C"
-/* ========= Registro de habilitación de reloj periféricos en APB2 ========= */
+/* ========= Registro de habilitaciï¿½n de reloj perifï¿½ricos en APB2 ========= */
 #define RCC_APB2ENR (*(volatile uint32_t*)(RCCBASE + 0x18)) // REGISTRO BASE DE RCC + EL OFFSET DE RCC_APB2ENR "0x18"
 
 
@@ -64,15 +63,63 @@
 
 
 
+#define GPIO_OUTPUT_PP_10MHZ    (0x1)  /* MODE=01, CNF=00 */
+#define GPIO_OUTPUT_PP_2MHZ     (0x2)  /* MODE=10, CNF=00 */
+#define GPIO_OUTPUT_PP_50MHZ    (0x3)  /* MODE=11, CNF=00 */
+
+#define GPIO_OUTPUT_OD_10MHZ    (0x5)  /* MODE=01, CNF=01 */
+#define GPIO_OUTPUT_OD_2MHZ     (0x6)  /* MODE=10, CNF=01 */
+#define GPIO_OUTPUT_OD_50MHZ    (0x7)  /* MODE=11, CNF=01 */
+
+/* --- MODOS DE FUNCION ALTERNATIVA (AF OUTPUT) --- */
+/* CNF=10 (AF Push-Pull), CNF=11 (AF Open-Drain) */
+#define GPIO_AF_PP_10MHZ        (0x9)  /* MODE=01, CNF=10 */
+#define GPIO_AF_PP_2MHZ         (0xA)  /* MODE=10, CNF=10 */
+#define GPIO_AF_PP_50MHZ        (0xB)  /* MODE=11, CNF=10 */
+
+#define GPIO_AF_OD_10MHZ        (0xD)  /* MODE=01, CNF=11 */
+#define GPIO_AF_OD_2MHZ         (0xE)  /* MODE=10, CNF=11 */
+#define GPIO_AF_OD_50MHZ        (0xF)  /* MODE=11, CNF=11 */
+
+
+/* --- MODOS DE ENTRADA (INPUT) --- */
+/* (MODE = 00) */
+#define GPIO_INPUT_ANALOG       (0x0)  /* CNF=00 */
+#define GPIO_INPUT_FLOATING     (0x4)  /* CNF=01 (Valor de Reset) */
+#define GPIO_INPUT_PUPD         (0x8)  /* CNF=10 (Input con Pull-up/Pull-down) */
+
+
+/* --- Definiciones de estado para Pull-up/Pull-down (para registro ODR) --- */
+#define GPIO_PULL_DOWN (0U)
+#define GPIO_PULL_UP   (1U)
+
+
+/* --- Bits de habilitaciÃ³n de Reloj GPIO (para usar con RCC_APB2ENR) --- */
+#define RCC_APB2ENR_AFIOEN (1 << 0)
+#define RCC_APB2ENR_IOPAEN (1 << 2)
+#define RCC_APB2ENR_IOPBEN (1 << 3)
+#define RCC_APB2ENR_IOPCEN (1 << 4)
+#define RCC_APB2ENR_IOPDEN (1 << 5)
+#define RCC_APB2ENR_IOPEEN (1 << 6)
 
 
 
 
-
-//prototipos
+/* ========= PROTOTIPOS DE FUNCIONES ========= */
 
 void Sysclock_Conf_8Mhz (void);
 
+/* --- Prototipos de GPIO (AÃ±adir estos) --- */
+
+/**
+ * @brief Activa el reloj del puerto y configura un pin especÃ­fico como SALIDA.
+ */
+void GPIO_Config_Output(uint32_t GPIOx_BASE, uint8_t pin, uint8_t output_mode);
+
+/**
+ * @brief Activa el reloj del puerto y configura un pin especÃ­fico como ENTRADA.
+ */
+void GPIO_Config_Input(uint32_t GPIOx_BASE, uint8_t pin, uint8_t input_mode, uint8_t pull_setting);
 
 
 
