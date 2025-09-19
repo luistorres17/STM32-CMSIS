@@ -94,6 +94,11 @@
 #define GPIO_PULL_UP   1
 
 
+/* ========= ESTADOS DE PIN (Niveles Lógicos) ========= */
+#define GPIO_PIN_LOW    0U
+#define GPIO_PIN_HIGH   1U
+
+
 /* --- Bits de habilitación de Reloj GPIO (para usar con RCC_APB2ENR) --- */
 
 #define RCC_APB2ENR_AFIOEN 0x01U
@@ -106,23 +111,95 @@
 
 
 
+/* ========= (OFFSET DE EL REGISTRO TIM1) ========= */
+#define TIM1_CR1   0x00  /* Control register 1 */
+#define TIM1_SR    0x10  /* Status register */
+#define TIM1_EGR   0x14  /* Event generation register */
+#define TIM1_CNT   0x24  /* Counter */
+#define TIM1_PSC   0x28  /* Prescaler */
+#define TIM1_ARR   0x2C  /* Auto-reload register */
+/* (Sus otros offsets de TIM1...) */
+
+/* --- Bits de habilitación de Reloj (Hex) --- */
+#define RCC_APB2ENR_AFIOEN 0x01U
+/* (Sus otros defines de GPIO...) */
+/* NECESITAMOS AÑADIR EL RELOJ DE TIM1 (Bit 11 en APB2ENR) */
+#define RCC_APB2ENR_TIM1EN 0x800U  /* (1 << 11) */
+
+
+/* --- Bits de control de TIM1 --- */
+#define TIM_CR1_CEN (0x01U)  /* Bit 0: Counter Enable */
+#define TIM_EGR_UG  (0x01U)  /* Bit 0: Update Generation */
+#define TIM_SR_UIF  (0x01U)  /* Bit 0: Update Interrupt Flag */
+
+
+/* ========= (OFFSET DE EL REGISTRO TIM1) ========= */
+// (Sus defines de TIM1 terminan aquí)
+
+/* * ============================================================================
+ * 5. DEFINICIONES DE SPI1 (Serial Peripheral Interface 1)
+ * ============================================================================
+ */
+
+/* SPI1 está en el bus APB2 */
+#define SPI1_BASE       (0x40013000U)
+
+/* ========= (OFFSETS DE LOS REGISTROS DE SPI1) ========= */
+#define SPI_CR1_OFFSET   0x00U /* SPI Control register 1 */
+#define SPI_CR2_OFFSET   0x04U /* SPI Control register 2 */
+#define SPI_SR_OFFSET    0x08U /* SPI Status register */
+#define SPI_DR_OFFSET    0x0CU /* SPI Data register */
+/* (Se omiten los registros CRC para una implementación básica) */
+
+/* --- Bit de habilitación de Reloj SPI1 (para usar con RCC_APB2ENR) --- */
+#define RCC_APB2ENR_SPI1EN (0x1000U)  /* (1 << 12) */
+
+/* --- Bits de Configuración (para SPI_CR1) --- */
+#define SPI_CR1_SPE      (0x40U)   /* Bit 6: SPI Enable */
+#define SPI_CR1_MSTR     (0x04U)   /* Bit 2: Master Selection (1=Master) */
+#define SPI_CR1_CPOL_LOW  (0x00U)  /* Bit 1: CPOL = 0 (Idle Low) */
+#define SPI_CR1_CPOL_HIGH (0x02U)  /* Bit 1: CPOL = 1 (Idle High) */
+#define SPI_CR1_CPHA_FIRST (0x00U) /* Bit 0: CPHA = 0 (Captura en el 1er borde) */
+#define SPI_CR1_CPHA_SECOND (0x01U) /* Bit 0: CPHA = 1 (Captura en el 2do borde) */
+
+/* Prescaler de Baud Rate (Relativo a PCLK2 = 8MHz) */
+/* (Bits 5:3 - BR[2:0]) */
+#define SPI_BR_PRESCALER_2   (0x00U) /* 8MHz / 2 = 4 MHz */
+#define SPI_BR_PRESCALER_4   (0x08U) /* 8MHz / 4 = 2 MHz */
+#define SPI_BR_PRESCALER_8   (0x10U) /* 8MHz / 8 = 1 MHz */
+#define SPI_BR_PRESCALER_16  (0x18U) /* 8MHz / 16 = 500 KHz */
+#define SPI_BR_PRESCALER_32  (0x20U)
+#define SPI_BR_PRESCALER_64  (0x28U)
+#define SPI_BR_PRESCALER_128 (0x30U)
+#define SPI_BR_PRESCALER_256 (0x38U)
+
+/* --- Software Slave Management (Modo Maestro más simple) --- */
+#define SPI_CR1_SSM      (0x200U)  /* Bit 9: Software Slave Management Enable */
+#define SPI_CR1_SSI      (0x100U)  /* Bit 8: Internal Slave Select (Debe ser 1 en Master con SSM=1) */
+
+/* --- Banderas de Estado (para SPI_SR) --- */
+#define SPI_SR_RXNE      (0x01U)   /* Bit 0: Receive buffer Not Empty flag */
+#define SPI_SR_TXE       (0x02U)   /* Bit 1: Transmit buffer Empty flag */
+#define SPI_SR_BSY       (0x80U)   /* Bit 7: Busy flag */
+
+
 /* ========= PROTOTIPOS DE FUNCIONES ========= */
 
 void Sysclock_Conf_8Mhz (void);
-
-/* --- Prototipos de GPIO (Añadir estos) --- */
-
-/**
- * @brief Activa el reloj del puerto y configura un pin específico como SALIDA.
- */
+/* (Prototipos de GPIO...) */
 void GPIO_Config_Output(uint32_t GPIOx_BASE, uint8_t pin, uint8_t output_mode);
-
-/**
- * @brief Activa el reloj del puerto y configura un pin específico como ENTRADA.
- */
 void GPIO_Config_Input(uint32_t GPIOx_BASE, uint8_t pin, uint8_t input_mode, uint8_t pull_setting);
+void GPIO_WritePin(uint32_t GPIOx_BASE, uint8_t pin, uint8_t state);
+uint8_t GPIO_ReadPin(uint32_t GPIOx_BASE, uint8_t pin);
 
+/* (Prototipos de Delay...) */
+void DELAY_TIM1_Init(void);
+void DELAY_TIM1_US(uint16_t us);
+void DELAY_TIM1_MS(uint16_t ms);
 
-
+/* --- NUEVOS PROTOTIPOS (SPI1) --- */
+void SPI1_Init_Master(void);
+uint8_t SPI1_SendReceive_Byte(uint8_t byte_data);
+void SPI1_Wait_BSY(void);
 
 #endif
