@@ -192,6 +192,18 @@ void GPIO_Config_Input(uint32_t GPIOx_BASE, uint8_t pin, uint8_t input_mode, uin
 void GPIO_WritePin(uint32_t GPIOx_BASE, uint8_t pin, uint8_t state);
 uint8_t GPIO_ReadPin(uint32_t GPIOx_BASE, uint8_t pin);
 
+
+void TIM1_Counter_Init(void);
+/* ... después de los otros defines de registros ... */
+#define MAX7219_BCD_BLANK         (0x0F) // En modo BCD, 0x0F apaga el dígito
+
+/* ... después de los otros prototipos ... */
+/**
+ * @brief Toma un número de 16 bits y lo muestra en los 8 dígitos.
+ * @param number El número a mostrar (0 a 65535).
+ */
+void MAX7219_DisplayNumber(uint16_t number);
+
 /* (Prototipos de Delay...) */
 void DELAY_TIM1_Init(void);
 void DELAY_TIM1_US(uint16_t us);
@@ -201,5 +213,19 @@ void DELAY_TIM1_MS(uint16_t ms);
 void SPI1_Init_Master(void);
 uint8_t SPI1_SendReceive_Byte(uint8_t byte_data);
 void SPI1_Wait_BSY(void);
+
+
+/* ... (después de sus otros defines de TIM1) ... */
+/* ========= (OFFSET DE EL REGISTRO TIM1 - ADICIONALES) ========= */
+#define TIM1_SMCR  0x08  /* Slave mode control register */
+#define TIM1_CCMR1 0x18  /* Capture/compare mode register 1 */
+#define TIM1_CCER  0x20  /* Capture/compare enable register */
+
+
+/* ========= PROTOTIPOS DE FUNCIONES ========= */
+/* (Sus prototipos existentes...) */
+
+/* --- NUEVO PROTOTIPO (Contador de Botón TIM1) --- */
+void TIM1_ButtonCounter_Init(void);
 
 #endif

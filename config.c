@@ -402,6 +402,91 @@ void SPI1_Wait_BSY(void)
     while (*p_SPI1_SR & SPI_SR_BSY);
 }
 
+/* ------------------------------------------------------------------------- */
+/* FUNCIÓN 11: INICIALIZACIÓN DE TIM1 COMO CONTADOR LIBRE                    */
+/* ------------------------------------------------------------------------- */
+/**
+ * @brief Configura TIM1 como un contador ascendente de 0 a 65535.
+ * @note  El contador se incrementará a una velocidad de 1000 veces por segundo (1 KHz).
+ */
+void TIM1_Counter_Init(void)
+{
+    /* Apuntadores a los registros de TIM1 (usando sus defines de config.h) */
+    volatile uint32_t* p_TIM1_CR1 = (volatile uint32_t*)(TIM1BASE + TIM1_CR1);
+    volatile uint32_t* p_TIM1_PSC = (volatile uint32_t*)(TIM1BASE + TIM1_PSC);
+    volatile uint32_t* p_TIM1_ARR = (volatile uint32_t*)(TIM1BASE + TIM1_ARR);
+    volatile uint32_t* p_TIM1_EGR = (volatile uint32_t*)(TIM1BASE + TIM1_EGR);
+
+    /* 1. Habilitar el reloj para TIM1 */
+    RCC_APB2ENR |= RCC_APB2ENR_TIM1EN;
+
+    /* 2. Configurar el Prescaler (PSC) para una velocidad visible */
+    /* Reloj de entrada = 8 MHz. Frecuencia deseada = 1 KHz (1000 ticks/seg). */
+    /* PSC = (8,000,000 / 1000) - 1 = 7999 */
+    *p_TIM1_PSC = 7999;
+
+    /* 3. Configurar el Auto-Reload Register (ARR) al valor máximo de 16 bits */
+    *p_TIM1_ARR = 0xFFFF; // 65535
+
+    /* 4. Generar un evento de actualización para cargar el prescaler */
+    *p_TIM1_EGR |= TIM_EGR_UG;
+
+    /* 5. Habilitar el contador. Ahora TIM1 cuenta de 0 a 65535 a 1 KHz. */
+    *p_TIM1_CR1 |= TIM_CR1_CEN;
+}
 
 
+/* ------------------------------------------------------------------------- */
+/* FUNCIÓN 11: INICIALIZACIÓN DE TIM1 PARA CONTAR PULSOS EN PA9              */
+/* ------------------------------------------------------------------------- */
+/**
+ * @brief Configura TIM1 para que su contador se incremente en cada flanco de bajada
+ * detectado en el pin PA9 (TIM1_CH2).
+ * @note  El pin PA9 se configura como entrada con resistencia pull-up. Se debe
+ * conectar un botón pulsador entre PA9 y GND.
+ */
+void TIM1_ButtonCounter_Init(void)
+{
+    /* Apuntadores a los registros de TIM1 que necesitaremos */
+    volatile uint32_t* p_TIM1_CR1   = (volatile uint32_t*)(TIM1BASE + TIM1_CR1);
+    volatile uint32_t* p_TIM1_SMCR  = (volatile uint32_t*)(TIM1BASE + TIM1_SMCR);
+    volatile uint32_t* p_TIM1_CCMR1 = (volatile uint32_t*)(TIM1BASE + TIM1_CCMR1);
+    volatile uint32_t* p_TIM1_CCER  = (volatile uint32_t*)(TIM1BASE + TIM1_CCER);
+    volatile uint32_t* p_TIM1_ARR   = (volatile uint32_t*)(TIM1BASE + TIM1_ARR);
+
+    /* 1. Habilitar Relojes para GPIOA y TIM1 */
+    /* (La función GPIO_Config_Input ya habilitará GPIOA y AFIO) */
+    RCC_APB2ENR |= RCC_APB2ENR_TIM1EN;
+
+    /* 2. Configurar el Pin de Entrada (PA9) */
+    /* Lo configuramos como entrada con pull-up. El botón debe conectar PA9 a GND. */
+    GPIO_Config_Input(GPIOA_BASE, 9, GPIO_INPUT_PUPD, GPIO_PULL_UP);
+
+    /* 3. Configurar TIM1 para usar PA9 como reloj externo */
+
+    /* a. Configurar Canal 2 (TIM1_CH2, que es PA9) como entrada, sensible a flancos de bajada. */
+    /* -- En CCMR1: Mapear la entrada del canal 2 a la entrada del pin TI2 (CC2S[1:0] = 01b) */
+    *p_TIM1_CCMR1 &= ~(0xFF << 8); // Limpiar configuración de canal 2
+    *p_TIM1_CCMR1 |= (0x01 << 8);  // CC2S = 01
+
+    /* -- En CCER: Habilitar captura en canal 2, configurar polaridad a flanco de bajada */
+    /* (Cuando el botón se presiona, el pin va de HIGH a LOW) */
+    *p_TIM1_CCER |= (1 << 5);  // CC2P = 1 (Polaridad Invertida / Flanco de Bajada)
+    *p_TIM1_CCER |= (1 << 4);  // CC2E = 1 (Habilitar Canal de Captura 2) - Aunque no capturamos, es necesario
+
+    /* b. Configurar el Slave Mode Controller para usar el Canal 2 como reloj */
+    /* -- En SMCR: Seleccionar TI2FP2 (Trigger Input 2) como fuente (TS[2:0] = 110b) */
+    /* -- y seleccionar External Clock Mode 1 (SMS[2:0] = 111b) */
+    *p_TIM1_SMCR &= ~(0x7FFF); // Limpiar configuración de SMCR
+    *p_TIM1_SMCR |= (0x6 << 4); // TS = 110
+    *p_TIM1_SMCR |= (0x7 << 0); // SMS = 111
+
+    /* 4. Configurar el Rango del Contador */
+    /* El contador irá de 0 hasta 65535 y luego se reiniciará (overflow). */
+    *p_TIM1_ARR = 0xFFFF;
+
+    /* 5. Habilitar el Contador */
+    /* El contador NO avanzará hasta que reciba pulsos en PA9. */
+    *p_TIM1_CR1 |= TIM_CR1_CEN;
+}
 
